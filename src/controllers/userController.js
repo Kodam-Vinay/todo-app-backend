@@ -82,7 +82,7 @@ const loginUser = async (req, res) => {
     if (!dbUser) {
       return res.status(404).send({ status: false, message: "User not found" });
     }
-    const comparePassword = bcrypt.compare(password, dbUser?.password);
+    const comparePassword = await bcrypt.compare(password, dbUser?.password);
     if (!comparePassword) {
       return res
         .status(401)

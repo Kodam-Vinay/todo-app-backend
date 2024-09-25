@@ -29,6 +29,7 @@ const updateTodo = async (req, res) => {
   try {
     const { userDetails } = req.user;
     const { id, title, description, status } = req.body;
+    console.log(status);
     if (!id || !title || !description || !status) {
       res
         .status(400)
