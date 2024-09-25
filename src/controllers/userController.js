@@ -119,27 +119,36 @@ const updateUser = async (req, res) => {
 
     const db = await initializeDb();
 
-    const findUserQuery = `SELECT * FROM users WHERE email = '${userDetails?.email}'`;
+    const findUserQuery = `SELECT * FROM users WHERE id = '${userDetails?.user_id}'`;
     const dbUser = await db.get(findUserQuery);
 
     if (!dbUser) {
       return res.status(404).send({ status: false, message: "User not found" });
     }
+
+    const findEmailExistsQuery = `SELECT * FROM users WHERE email='${email}'`;
+    const findDbUserEmailExists = await db.get(findEmailExistsQuery);
+    if (
+      findDbUserEmailExists &&
+      findDbUserEmailExists?.email !== userDetails?.email
+    ) {
+      return res
+        .status(404)
+        .send({ status: false, message: "Email Already Exists" });
+    }
+
     let hashedPassword = "";
     if (password) {
       hashedPassword = await generateHashPassword(password);
     } else {
       hashedPassword = dbUser.password;
     }
-    const updateUserQuery = `UPDATE users SET name='${
-      userDetails?.name | name
-    }', password='${dbUser?.password | hashedPassword}', email='${
-      userDetails?.email | email
-    }'`;
+
+    const updateUserQuery = `UPDATE users SET name='${name}', password='${hashedPassword}', email='${email}' WHERE id='${userDetails?.user_id}'`;
     await db.run(updateUserQuery);
-    const dbUserAfterUpdate = `SELECT * FROM users WHERE email = '${
-      email | userDetails?.email
-    }'`;
+
+    const dbUserAfterUpdateQuery = `SELECT * FROM users WHERE id = '${userDetails?.user_id}'`;
+    const dbUserAfterUpdate = await db.get(dbUserAfterUpdateQuery);
     const tokenUserDetails = {
       email: dbUserAfterUpdate?.email,
       name: dbUserAfterUpdate?.name,
@@ -150,6 +159,7 @@ const updateUser = async (req, res) => {
       email: dbUserAfterUpdate?.email,
       token,
     };
+
     res.status(200).send({
       status: true,
       message: "User Details Update Successful",

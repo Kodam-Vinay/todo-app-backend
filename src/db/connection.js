@@ -29,7 +29,7 @@ const initializeDb = async () => {
           title TEXT NOT NULL,
           description TEXT,
           status TEXT CHECK( status IN ('pending', 'in-progress', 'completed') ) DEFAULT 'pending',
-          user_id INTEGER,
+          user_id TEXT,
           created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
           updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
           FOREIGN KEY (user_id) REFERENCES users(id)
